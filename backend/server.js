@@ -10,6 +10,7 @@ app.get('/health', (_req, res) => {
     status: 'ok',
     service: 'vitalsync-backend',
     uptime: process.uptime(),
+    hostname: require('os').hostname(),
     checkedAt: new Date().toISOString(),
   });
 });
