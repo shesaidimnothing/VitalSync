@@ -13,10 +13,27 @@ VitalSync suit une architecture **3-tiers conteneurisée** :
 L'ensemble est orchestré via Docker Compose en local et déployable sur Kubernetes en production.
 
 ```mermaid
-graph LR
-    Client([Navigateur]) -->|HTTP :80| Frontend[Nginx Frontend]
-    Frontend -->|/api/*| Backend[Node.js Backend :3000]
-    Backend -->|TCP :5432| DB[(PostgreSQL)]
+graph TB
+    subgraph CI/CD Pipeline
+        GH[GitHub Actions] -->|lint + test| Lint[ESLint & Jest]
+        Lint -->|build & push| GHCR[GHCR Registry]
+        GHCR -->|deploy staging| Staging[Docker Compose]
+    end
+
+    subgraph Production / Kubernetes
+        Client([Navigateur]) -->|HTTP :80| Ingress[Ingress Controller]
+        Ingress --> Frontend[Nginx Frontend]
+        Frontend -->|/api/*| Backend[Node.js Backend :3000]
+        Backend -->|TCP :5432| DB[(PostgreSQL 16)]
+    end
+
+    subgraph Développement local
+        Dev([Développeur]) -->|git push develop| GH
+        Dev -->|docker compose up| Local[Docker Compose local]
+    end
+
+    GHCR -.->|pull images| Backend
+    GHCR -.->|pull images| Frontend
 ```
 
 ## Prérequis
