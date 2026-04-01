@@ -19,6 +19,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: ghcr.io/OWNER/vitalsync/frontend:latest
+          image: vitalsync/frontend:latest
+          imagePullPolicy: Never
           ports:
             - containerPort: 80
