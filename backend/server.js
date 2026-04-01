@@ -8,9 +8,8 @@ app.use(express.json());
 app.get('/health', (_req, res) => {
   res.status(200).json({
     status: 'ok',
-    service: 'vitalsync-backend',
-    uptime: process.uptime(),
-    checkedAt: new Date().toISOString(),
+    version: require('./package.json').version,
+    environment: process.env.NODE_ENV || 'development',
   });
 });
 
