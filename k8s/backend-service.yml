@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vitalsync-backend
+  labels:
+    app: vitalsync
+    tier: backend
+spec:
+  type: ClusterIP
+  selector:
+    app: vitalsync
+    tier: backend
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000

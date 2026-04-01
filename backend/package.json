@@ -1,0 +1,22 @@
+{
+  "name": "vitalsync-backend",
+  "version": "1.0.0",
+  "description": "Backend API for VitalSync health-tracking application",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "jest --verbose --forceExit --watchman=false",
+    "lint": "eslint ."
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.1",
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
+  }
+}

@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Coverage & tests
+coverage/
+.nyc_output/
+
+# Build artifacts
+dist/
+build/
+
+# Docker
+*.tar
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Certificates
+*.pem
+*.key
+*.crt
+
+# OS
+Thumbs.db

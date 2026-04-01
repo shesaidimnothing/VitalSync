@@ -1,0 +1,96 @@
+name: VitalSync CI/CD
+
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  BACKEND_IMAGE: ghcr.io/${{ github.repository }}/backend
+  FRONTEND_IMAGE: ghcr.io/${{ github.repository }}/frontend
+
+jobs:
+  lint-test:
+    name: Lint & Test backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+
+  build-push:
+    name: Build & Push Docker images
+    needs: lint-test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push backend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: ${{ env.BACKEND_IMAGE }}:${{ github.sha }}
+
+      - name: Build & push frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: ${{ env.FRONTEND_IMAGE }}:${{ github.sha }}
+
+  deploy-staging:
+    name: Deploy to staging
+    needs: build-push
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create .env for staging
+        run: |
+          echo "POSTGRES_USER=vitalsync" >> .env
+          echo "POSTGRES_PASSWORD=staging_password" >> .env
+          echo "POSTGRES_DB=vitalsync_db" >> .env
+
+      - name: Start services
+        run: docker compose up -d --build
+
+      - name: Wait for services to start
+        run: sleep 15
+
+      - name: Health check
+        run: |
+          STATUS=$(curl -sf http://localhost:3000/health | jq -r '.status')
+          if [ "$STATUS" != "ok" ]; then
+            echo "Health check failed: status=$STATUS"
+            docker compose logs
+            exit 1
+          fi
+          echo "Health check passed"
+
+      - name: Tear down
+        if: always()
+        run: docker compose down -v
