@@ -9,8 +9,10 @@ app.get('/health', (_req, res) => {
   res.status(200).json({
     status: 'ok',
     service: 'vitalsync-backend',
+    version: require('./package.json').version,
     uptime: process.uptime(),
     hostname: require('os').hostname(),
+    environment: process.env.NODE_ENV || 'development',
     checkedAt: new Date().toISOString(),
   });
 });
