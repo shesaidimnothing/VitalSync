@@ -123,3 +123,7 @@ VitalSync/
 ├── docker-compose.yml
 └── README.md
 ```
+
+## Auteur
+
+Projet réalisé dans le cadre de l'épreuve E6 — EFREI.
