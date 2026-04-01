@@ -24,6 +24,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev
 
+COPY --from=build /app/package.json /tmp/build-proof
 COPY server.js ./
 
 USER node
